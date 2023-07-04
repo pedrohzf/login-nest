@@ -4,24 +4,35 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { EntityNotFoundError } from 'src/errors/entity-not-found.error';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(dto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const data: Prisma.UserCreateInput = {
-      ...dto,
+      ...createUserDto,
+      password: await bcrypt.hash(createUserDto.password, 11)
     };
 
-    return this.prisma.user.create({
-      data,
-    })
+    const createdUser = await this.prisma.user.create({ data })
+
+    return {
+      ...createdUser,
+      password: undefined
+    }
   }
 
   async findOne(id: number): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id }
+    })
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email }
     })
   }
 
