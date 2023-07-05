@@ -2,7 +2,9 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { LoginRequestBody } from './model/LoginRequestBody';
 import { AuthService } from './auth.service';
 import { Public } from './public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('login')
 @Controller()
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
